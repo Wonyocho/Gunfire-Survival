@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D), typeof(PlayerHealth))]
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 8f;
