@@ -33,6 +33,18 @@ public class EnemySpawner : MonoBehaviour
     void Start()
     {
         nextTime = Time.time + startDelay;
+        
+        // WorldBounds 디버그 정보 출력
+        if (worldBounds)
+        {
+            var b = worldBounds.bounds;
+            Debug.Log($"[WorldBounds] Center: {b.center}, Size: {b.size}");
+            Debug.Log($"[WorldBounds] Min: ({b.min.x}, {b.min.y}), Max: ({b.max.x}, {b.max.y})");
+        }
+        else
+        {
+            Debug.LogWarning("[WorldBounds] worldBounds is not assigned!");
+        }
     }
 
     void Update()
