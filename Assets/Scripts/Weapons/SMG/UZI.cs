@@ -1,20 +1,20 @@
 using UnityEngine;
 
-// 단발 권총 M1911 구현 (히트스캔)
-public class M1911 : IWeapon
+// 기관단총 UZI 구현 (히트스캔)
+public class UZI : IWeapon
 {
     // ---- 설정(스탯) ----
-    public WeaponCategory Category => WeaponCategory.HG;
-    public string WeaponName => "M1911";
-    public float Damage => 10f;
-    public float FireRate => 2f;          // 0.5초/발
-    public int MagazineSize => 7;
-    public float ReloadTime => 2f;      // 초
-    public int PenetrationCount => 1;     // 1명만 적중
-    public float SpreadAngle => 1f;       // 도(deg)
+    public WeaponCategory Category => WeaponCategory.SMG;
+    public string WeaponName => "UZI";
+    public float Damage => 15f;
+    public float FireRate => 100f;       // 0.01초/발
+    public int MagazineSize => 40;
+    public float ReloadTime => 3f;       // 초
+    public int PenetrationCount => 1;    // 1명만 적중
+    public float SpreadAngle => 1f;      // 도(deg)
 
     // 내부 상수
-    const float MaxRange = 40f;           // 히트스캔 사거리
+    const float MaxRange = 40f;          // 히트스캔 사거리(기본값)
     const float MinDirMag = 0.0001f;
 
     // ---- 상태 ----
@@ -34,7 +34,7 @@ public class M1911 : IWeapon
     public bool CanFire => !isReloading && currentAmmo > 0 && fireCooldown <= 0f;
 
     // ---- 생성 ----
-    public M1911()
+    public UZI()
     {
         currentAmmo = MagazineSize;
         isReloading = false;
@@ -46,15 +46,15 @@ public class M1911 : IWeapon
     public bool TryFire(Vector2 origin, Vector2 direction, LayerMask targetMask)
     {
         if (!CanFire) {
-            // 총알이 0이면 자동 리로드 시도(선택)
             if (!isReloading && currentAmmo <= 0) StartReload();
             return false;
         }
 
-        // 방향 보정 및 탄퍼짐 적용
         if (direction.sqrMagnitude < MinDirMag * MinDirMag)
             return false;
         Vector2 dir = direction.normalized;
+
+        // 스프레드 적용
         float spread = SpreadAngle;
         if (spread > 0f)
         {
@@ -102,11 +102,10 @@ public class M1911 : IWeapon
         fireCooldown = 1f / Mathf.Max(0.0001f, FireRate);
         OnAmmoChanged?.Invoke(this);
 
-        // 사격 후 탄약이 0이면 자동 리로드 시작(선택)
         if (currentAmmo == 0 && !isReloading)
             StartReload();
 
-        return true; // 히트 여부와 무관하게 실제 발사했음을 알림
+        return hitsApplied > 0;
     }
 
     public void StartReload()

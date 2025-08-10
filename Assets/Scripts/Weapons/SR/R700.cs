@@ -1,20 +1,20 @@
 using UnityEngine;
 
-// 단발 권총 M1911 구현 (히트스캔)
-public class M1911 : IWeapon
+// 스나이퍼 라이플 R700 구현 (히트스캔, 다중 관통)
+public class R700 : IWeapon
 {
     // ---- 설정(스탯) ----
-    public WeaponCategory Category => WeaponCategory.HG;
-    public string WeaponName => "M1911";
-    public float Damage => 10f;
-    public float FireRate => 2f;          // 0.5초/발
+    public WeaponCategory Category => WeaponCategory.SR;
+    public string WeaponName => "R700";
+    public float Damage => 100f;
+    public float FireRate => 1f;          // 1초/발
     public int MagazineSize => 7;
-    public float ReloadTime => 2f;      // 초
-    public int PenetrationCount => 1;     // 1명만 적중
-    public float SpreadAngle => 1f;       // 도(deg)
+    public float ReloadTime => 3f;        // 초
+    public int PenetrationCount => 10;    // 경로상 최대 10명 적중
+    public float SpreadAngle => 0f;       // 탄퍼짐 없음
 
     // 내부 상수
-    const float MaxRange = 40f;           // 히트스캔 사거리
+    const float MaxRange = 40f;           // 히트스캔 사거리(프로젝트 기준)
     const float MinDirMag = 0.0001f;
 
     // ---- 상태 ----
@@ -34,7 +34,7 @@ public class M1911 : IWeapon
     public bool CanFire => !isReloading && currentAmmo > 0 && fireCooldown <= 0f;
 
     // ---- 생성 ----
-    public M1911()
+    public R700()
     {
         currentAmmo = MagazineSize;
         isReloading = false;
@@ -46,15 +46,15 @@ public class M1911 : IWeapon
     public bool TryFire(Vector2 origin, Vector2 direction, LayerMask targetMask)
     {
         if (!CanFire) {
-            // 총알이 0이면 자동 리로드 시도(선택)
             if (!isReloading && currentAmmo <= 0) StartReload();
             return false;
         }
 
-        // 방향 보정 및 탄퍼짐 적용
         if (direction.sqrMagnitude < MinDirMag * MinDirMag)
             return false;
         Vector2 dir = direction.normalized;
+
+        // 스프레드(정확도 0이므로 기본적으로 없음)
         float spread = SpreadAngle;
         if (spread > 0f)
         {
@@ -66,34 +66,18 @@ public class M1911 : IWeapon
             dir = new Vector2(dir.x * cs - dir.y * sn, dir.x * sn + dir.y * cs);
         }
 
-        // 발사 처리(히트스캔)
+        // 발사 처리(히트스캔, 다중 관통)
         int hitsApplied = 0;
-        if (PenetrationCount <= 1)
+        var hits = Physics2D.RaycastAll(origin, dir, MaxRange, targetMask);
+        System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+        foreach (var h in hits)
         {
-            var hit = Physics2D.Raycast(origin, dir, MaxRange, targetMask);
-            if (hit.collider)
+            var eh = h.collider ? (h.collider.GetComponent<EnemyHealth>() ?? h.collider.GetComponentInParent<EnemyHealth>()) : null;
+            if (eh)
             {
-                var eh = hit.collider.GetComponent<EnemyHealth>() ?? hit.collider.GetComponentInParent<EnemyHealth>();
-                if (eh)
-                {
-                    eh.TakeDamage(Damage);
-                    hitsApplied = 1;
-                }
-            }
-        }
-        else
-        {
-            var hits = Physics2D.RaycastAll(origin, dir, MaxRange, targetMask);
-            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
-            foreach (var h in hits)
-            {
-                var eh = h.collider ? (h.collider.GetComponent<EnemyHealth>() ?? h.collider.GetComponentInParent<EnemyHealth>()) : null;
-                if (eh)
-                {
-                    eh.TakeDamage(Damage);
-                    hitsApplied++;
-                    if (hitsApplied >= PenetrationCount) break;
-                }
+                eh.TakeDamage(Damage);
+                hitsApplied++;
+                if (hitsApplied >= PenetrationCount) break;
             }
         }
 
@@ -102,11 +86,10 @@ public class M1911 : IWeapon
         fireCooldown = 1f / Mathf.Max(0.0001f, FireRate);
         OnAmmoChanged?.Invoke(this);
 
-        // 사격 후 탄약이 0이면 자동 리로드 시작(선택)
         if (currentAmmo == 0 && !isReloading)
             StartReload();
 
-        return true; // 히트 여부와 무관하게 실제 발사했음을 알림
+        return hitsApplied > 0;
     }
 
     public void StartReload()
@@ -140,3 +123,4 @@ public class M1911 : IWeapon
         }
     }
 }
+
