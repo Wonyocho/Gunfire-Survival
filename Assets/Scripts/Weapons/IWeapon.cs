@@ -3,11 +3,12 @@ using UnityEngine;
 // 무기 카테고리 열거형
 public enum WeaponCategory
 {
-    HG,  // Handgun
-    SMG, // Submachine Gun
-    AR,  // Assault Rifle
-    SR,  // Sniper Rifle
-    MG   // Machine Gun
+	HG,  // Handgun
+	SMG, // Submachine Gun
+	AR,  // Assault Rifle
+	SR,  // Sniper Rifle
+	MG,   // Machine Gun
+	SG,  // Shotgun
 }
 
 /// <summary>
