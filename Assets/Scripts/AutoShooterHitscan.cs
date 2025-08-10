@@ -20,6 +20,10 @@ public class AutoShooterHitscan : MonoBehaviour
     [SerializeField] LayerMask hitMask;       // Enemy 레이어 권장
     [SerializeField] LineRenderer shotLine;   // 하얀 선
 
+    [Header("Aim Cursor")]
+    [Tooltip("씬에 배치된 AimCursor 인스턴스(Transform)만 넣으세요. 프리팹 에셋 X")]
+    [SerializeField] Transform aimCursor;
+
     [Header("VFX")]
     [SerializeField] float lineDuration = 0.05f;
 
@@ -49,6 +53,13 @@ public class AutoShooterHitscan : MonoBehaviour
         weaponSlot1 = CreateWeapon(slot1StartWeapon);
         weaponSlot2 = CreateWeapon(slot2StartWeapon);
         currentSlot = 1;
+
+        // AimCursor는 씬 인스턴스만 허용(프리팹 에셋이 참조되면 무시)
+        if (aimCursor && !aimCursor.gameObject.scene.IsValid())
+        {
+            Debug.LogWarning("AutoShooterHitscan: 'aimCursor'에는 프리팹이 아닌 씬 인스턴스를 할당하세요. 참조를 무시합니다.", this);
+            aimCursor = null;
+        }
     }
 
     void Update()
@@ -69,6 +80,17 @@ public class AutoShooterHitscan : MonoBehaviour
             Weapon?.StartReload();
         }
 
+        // --- 마우스 조준 마커 위치 갱신 ---
+        var camForCursor = Camera.main;
+        if (camForCursor && aimCursor)
+        {
+            Vector3 mouse = Input.mousePosition;
+            float planeZ = transform.position.z;
+            mouse.z = planeZ - camForCursor.transform.position.z;
+            Vector3 mouseWorld = camForCursor.ScreenToWorldPoint(mouse);
+            aimCursor.position = new Vector3(mouseWorld.x, mouseWorld.y, planeZ);
+        }
+
         var weapon = Weapon;
         if (weapon == null) return;
 
@@ -79,13 +101,13 @@ public class AutoShooterHitscan : MonoBehaviour
         var cam = Camera.main;
         if (!cam) return;
 
-        Vector3 mouse = Input.mousePosition;
+        Vector3 mousePos = Input.mousePosition;
         // 플레이어와 동일 평면(z)에서의 월드 좌표로 변환
-        float planeZ = transform.position.z;
-        mouse.z = planeZ - cam.transform.position.z;
-        Vector3 mouseWorld = cam.ScreenToWorldPoint(mouse);
+        float planeZ2 = transform.position.z;
+        mousePos.z = planeZ2 - cam.transform.position.z;
+        Vector3 mouseWorld2 = cam.ScreenToWorldPoint(mousePos);
 
-        Vector2 toMouse = (Vector2)mouseWorld - origin;
+        Vector2 toMouse = (Vector2)mouseWorld2 - origin;
         float dist = toMouse.magnitude;
         if (dist <= 0.0001f) return;
         Vector2 dir = toMouse / Mathf.Max(0.0001f, dist);
