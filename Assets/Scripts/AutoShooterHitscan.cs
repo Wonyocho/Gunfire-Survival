@@ -8,8 +8,12 @@ public class AutoShooterHitscan : MonoBehaviour
     public enum StartWeaponType { M1911, UZI, M4A1, R700, M249 }
 
     [Header("Weapon")]
-    [SerializeField] StartWeaponType startWeapon = StartWeaponType.R700; // 시작 무기 선택
-    private IWeapon weapon; // 런타임 인스턴스
+    [SerializeField] StartWeaponType slot1StartWeapon = StartWeaponType.R700; // 슬롯1 시작 무기
+    [SerializeField] StartWeaponType slot2StartWeapon = StartWeaponType.M1911; // 슬롯2 시작 무기
+    private IWeapon weaponSlot1; // 슬롯1 인스턴스
+    private IWeapon weaponSlot2; // 슬롯2 인스턴스
+    private int currentSlot = 1; // 1 또는 2
+    private IWeapon Weapon => currentSlot == 1 ? weaponSlot1 : weaponSlot2;
 
     [Header("Refs")]
     [SerializeField] Transform muzzle;        // 비우면 transform 사용
@@ -41,21 +45,31 @@ public class AutoShooterHitscan : MonoBehaviour
             shotLine.enabled = false;
         }
 
-        // 시작 무기 장착
-        switch (startWeapon)
-        {
-            case StartWeaponType.M1911: weapon = new M1911(); break;
-            case StartWeaponType.UZI:   weapon = new UZI(); break;
-            case StartWeaponType.M4A1:  weapon = new M4A1(); break;
-            case StartWeaponType.M249:  weapon = new M249(); break;
-            case StartWeaponType.R700:
-            default:                    weapon = new R700(); break;
-        }
+        // 시작 무기 장착 (슬롯1/슬롯2)
+        weaponSlot1 = CreateWeapon(slot1StartWeapon);
+        weaponSlot2 = CreateWeapon(slot2StartWeapon);
+        currentSlot = 1;
     }
 
     void Update()
     {
-        weapon?.Update(Time.deltaTime);
+        // 무기 상태 업데이트(둘 다 갱신하여 재장전/쿨타임 유지)
+        weaponSlot1?.Update(Time.deltaTime);
+        weaponSlot2?.Update(Time.deltaTime);
+
+        // 슬롯 전환(Q)
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            ToggleSlot();
+        }
+
+        // 재장전(R)
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            Weapon?.StartReload();
+        }
+
+        var weapon = Weapon;
         if (weapon == null) return;
 
         // 마우스 좌클릭 유지 시 발사
@@ -103,6 +117,26 @@ public class AutoShooterHitscan : MonoBehaviour
         {
             if (shotRoutine != null) StopCoroutine(shotRoutine);
             shotRoutine = StartCoroutine(ShowShotLine(origin, visualEnd));
+        }
+    }
+
+    private void ToggleSlot()
+    {
+        currentSlot = currentSlot == 1 ? 2 : 1;
+        // 필요 시 슬롯 전환 사운드/이벤트 트리거 가능
+        // Debug.Log($"Switched to Slot {currentSlot}");
+    }
+
+    private IWeapon CreateWeapon(StartWeaponType type)
+    {
+        switch (type)
+        {
+            case StartWeaponType.M1911: return new M1911();
+            case StartWeaponType.UZI:   return new UZI();
+            case StartWeaponType.M4A1:  return new M4A1();
+            case StartWeaponType.M249:  return new M249();
+            case StartWeaponType.R700:
+            default:                    return new R700();
         }
     }
 
