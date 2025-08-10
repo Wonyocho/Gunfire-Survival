@@ -5,10 +5,11 @@ using UnityEngine;
 public class AutoShooterHitscan : MonoBehaviour
 {
     // 무기 시스템(IWeapon) 기반으로 리팩터링
+    public enum StartWeaponType { M1911, UZI, M4A1, R700, M249 }
+
     [Header("Weapon")]
-    [SerializeField] bool startWithM1911 = true; // 기본 장착 무기
-    [SerializeField, Tooltip("타겟 탐색 범위")] float targetRange = 35f;
-    private IWeapon weapon; // 런타임 인스턴스(M1911 등)
+    [SerializeField] StartWeaponType startWeapon = StartWeaponType.R700; // 시작 무기 선택
+    private IWeapon weapon; // 런타임 인스턴스
 
     [Header("Refs")]
     [SerializeField] Transform muzzle;        // 비우면 transform 사용
@@ -40,29 +41,45 @@ public class AutoShooterHitscan : MonoBehaviour
             shotLine.enabled = false;
         }
 
-        // 기본 무기 장착
-        if (startWithM1911)
+        // 시작 무기 장착
+        switch (startWeapon)
         {
-            weapon = new M1911();
+            case StartWeaponType.M1911: weapon = new M1911(); break;
+            case StartWeaponType.UZI:   weapon = new UZI(); break;
+            case StartWeaponType.M4A1:  weapon = new M4A1(); break;
+            case StartWeaponType.M249:  weapon = new M249(); break;
+            case StartWeaponType.R700:
+            default:                    weapon = new R700(); break;
         }
     }
 
     void Update()
     {
-        // 무기 업데이트(쿨다운/리로드 등)
         weapon?.Update(Time.deltaTime);
+        if (weapon == null) return;
 
-        var target = FindClosestEnemyInRange(targetRange);
-        if (!target || weapon == null) return;
+        // 마우스 좌클릭 유지 시 발사
+        if (!Input.GetMouseButton(0)) return;
 
         Vector2 origin = muzzle ? (Vector2)muzzle.position : (Vector2)transform.position;
-        Vector2 toTarget = (Vector2)target.transform.position - origin;
-        float dist = toTarget.magnitude;
-        Vector2 dir = (dist > 0.0001f) ? (toTarget / dist) : Vector2.right;
+        var cam = Camera.main;
+        if (!cam) return;
+
+        Vector3 mouse = Input.mousePosition;
+        // 플레이어와 동일 평면(z)에서의 월드 좌표로 변환
+        float planeZ = transform.position.z;
+        mouse.z = planeZ - cam.transform.position.z;
+        Vector3 mouseWorld = cam.ScreenToWorldPoint(mouse);
+
+        Vector2 toMouse = (Vector2)mouseWorld - origin;
+        float dist = toMouse.magnitude;
+        if (dist <= 0.0001f) return;
+        Vector2 dir = toMouse / Mathf.Max(0.0001f, dist);
 
         // 발사 시도(IWeapon이 발사간격/탄약/리로드 관리)
-        bool fired = weapon.CanFire && weapon.TryFire(origin, dir, hitMask);
-        if (!fired) return;
+        // VFX는 적 적중 여부와 무관하게 항상 표시되도록 TryFire 결과와 상관없이 진행
+        if (!weapon.CanFire) return;
+        weapon.TryFire(origin, dir, hitMask);
 
         // ---- VFX: 라인 길이 계산 (무기 데미지 기반) ----
         float byDamage = lineBaseLength + weapon.Damage * lineLengthPerDamage;
@@ -71,7 +88,7 @@ public class AutoShooterHitscan : MonoBehaviour
 
         if (clampToHitPoint)
         {
-            // 시각용으로만 레이캐스트(피해는 이미 IWeapon 내부에서 처리됨)
+            // 시각용 레이캐스트로 명중 지점까지 캡(실제 피해는 무기에서 처리됨)
             RaycastHit2D hit = Physics2D.Raycast(origin, dir, 100f, hitMask);
             if (hit.collider)
             {
@@ -87,25 +104,6 @@ public class AutoShooterHitscan : MonoBehaviour
             if (shotRoutine != null) StopCoroutine(shotRoutine);
             shotRoutine = StartCoroutine(ShowShotLine(origin, visualEnd));
         }
-    }
-
-    EnemyHealth FindClosestEnemyInRange(float range)
-    {
-        EnemyHealth closest = null;
-        float bestSqr = range * range;
-        Vector2 origin = muzzle ? (Vector2)muzzle.position : (Vector2)transform.position;
-
-        foreach (var e in EnemyRegistry.All)
-        {
-            if (!e || !e.isActiveAndEnabled) continue;
-            float sqr = ((Vector2)e.transform.position - origin).sqrMagnitude;
-            if (sqr <= bestSqr)
-            {
-                bestSqr = sqr;
-                closest = e;
-            }
-        }
-        return closest;
     }
 
     IEnumerator ShowShotLine(Vector2 start, Vector2 end)
