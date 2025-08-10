@@ -90,6 +90,14 @@ public class PlayerHealth : MonoBehaviour
     void Die()
     {
         Debug.Log("Player has died!");
+        
+        // 생존 타이머 정지
+        var survivalTimer = FindFirstObjectByType<SurvivalTimer>();
+        if (survivalTimer != null)
+        {
+            survivalTimer.StopTimer();
+        }
+        
         // TODO: 게임 오버 처리 로직 추가
         // 일단은 게임 오브젝트를 비활성화합니다.
         Time.timeScale = 0f; // 시간을 멈춰서 게임을 정지시킵니다.
