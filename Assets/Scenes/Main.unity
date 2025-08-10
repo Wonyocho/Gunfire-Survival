@@ -796,11 +796,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 428a57775507b415abe3640ba34e6c7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weapon:
-    damage: 10
-    fireRate: 2
-    maxRange: 40
-    targetRange: 35
+  startWithM1911: 1
+  targetRange: 35
   muzzle: {fileID: 1099602592}
   hitMask:
     serializedVersion: 2
