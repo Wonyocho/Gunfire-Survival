@@ -55,7 +55,7 @@ public class ScoreHudPresenter : MonoBehaviour
     void OnScoreChanged(float total)
     {
         if (scoreText)
-            scoreText.text = $"Score: {total:0}";
+            scoreText.text = $"{total:0}";
     }
 
     void OnKillChanged(int total)

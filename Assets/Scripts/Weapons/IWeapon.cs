@@ -20,7 +20,7 @@ public interface IWeapon
     WeaponCategory Category { get; } // 무기 카테고리
 
 	// 기본 스탯
-		string WeaponName { get; } // 무기 이름
+	string WeaponName { get; } // 무기 이름
     float Damage { get; } // 무기의 데미지
     float FireRate { get; } // 무기의 발사 속도
     int MagazineSize { get; } // 탄창 크기
