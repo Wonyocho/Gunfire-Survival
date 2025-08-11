@@ -614,12 +614,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1099602592}
   - component: {fileID: 1099602591}
+  - component: {fileID: 1099602595}
   - component: {fileID: 1099602590}
   - component: {fileID: 1099602589}
   - component: {fileID: 1099602593}
   - component: {fileID: 1099602596}
-  - component: {fileID: 1099602594}
-  - component: {fileID: 1099602595}
+  - component: {fileID: 1099602597}
+  - component: {fileID: 1099602598}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -784,31 +785,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 8
   worldBounds: {fileID: 129432503}
---- !u!114 &1099602594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1099602588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 428a57775507b415abe3640ba34e6c7f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slot1StartWeapon: 3
-  slot2StartWeapon: 0
-  muzzle: {fileID: 1099602592}
-  hitMask:
-    serializedVersion: 2
-    m_Bits: 128
-  shotLine: {fileID: 1099602595}
-  aimCursor: {fileID: 1660239536}
-  lineDuration: 0.05
-  lineBaseLength: 3
-  lineLengthPerDamage: 0.25
-  minVisualLength: 0
-  clampToHitPoint: 1
 --- !u!120 &1099602595
 LineRenderer:
   serializedVersion: 2
@@ -929,6 +905,45 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxHP: 100
+--- !u!114 &1099602597
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099602588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f53923546b2324bbb80aa5772743aedf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  slot1StartWeapon: 3
+  slot2StartWeapon: 5
+  muzzle: {fileID: 0}
+  hitMask:
+    serializedVersion: 2
+    m_Bits: 128
+--- !u!114 &1099602598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099602588}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfe9d3d47f63f4be38e1e9ae8c5c9f86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireEventSource: {fileID: 1099602597}
+  clampMask:
+    serializedVersion: 2
+    m_Bits: 128
+  lineDuration: 0.05
+  lineBaseLength: 3
+  lineLengthPerDamage: 0.25
+  minVisualLength: 0
+  clampToHitPoint: 1
 --- !u!1 &1238848105
 GameObject:
   m_ObjectHideFlags: 0
@@ -1060,11 +1075,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &1660239536 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 7014301317542920376, guid: 1deb879e49ada4c06bdf030574e6525a, type: 3}
-  m_PrefabInstance: {fileID: 6218670566874113903}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6218670566874113903
 PrefabInstance:
   m_ObjectHideFlags: 0
