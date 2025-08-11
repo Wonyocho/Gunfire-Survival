@@ -92,6 +92,10 @@ public class WeaponHudPresenter : MonoBehaviour
             {
                 ammoText.text = "-/-";
             }
+            else if (_current.IsReloading)
+            {
+                ammoText.text = "Reloading...";
+            }
             else
             {
                 ammoText.text = $"{_current.CurrentAmmo}/{_current.MagazineSize}";
