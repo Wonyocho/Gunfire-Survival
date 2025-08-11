@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour, IDamageable
+public class PlayerHealth : MonoBehaviour, IDamageable, IHealthSource
 {
     [SerializeField] private float maxHP = 100f;
     private float hp;
@@ -8,9 +8,16 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public float HP => hp;
     public float MaxHP => maxHP;
 
+    // IHealthSource 구현
+    public float CurrentHP => hp;
+    public float MaxHPForUI => maxHP; // 별칭(인터페이스와 충돌 방지용 주석)
+    public event System.Action<float, float> HealthChanged;
+
     void Awake()
     {
         hp = maxHP;
+        // 초기 상태 통지
+        HealthChanged?.Invoke(hp, maxHP);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -41,9 +48,12 @@ public class PlayerHealth : MonoBehaviour, IDamageable
         if (hp <= 0)
         {
             hp = 0;
+            HealthChanged?.Invoke(hp, maxHP);
             Die();
+            return;
         }
         Debug.Log($"Player took {dmg} damage, HP is now {hp}");
+        HealthChanged?.Invoke(hp, maxHP);
     }
 
     void Die()
