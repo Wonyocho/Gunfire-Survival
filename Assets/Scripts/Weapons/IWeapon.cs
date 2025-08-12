@@ -3,12 +3,20 @@ using UnityEngine;
 // 무기 카테고리 열거형
 public enum WeaponCategory
 {
-	HG,  // Handgun
+	// HG 제거됨
 	SMG, // Submachine Gun
 	AR,  // Assault Rifle
 	SR,  // Sniper Rifle
 	MG,   // Machine Gun
 	SG,  // Shotgun
+}
+
+// 무기 등급(표시용)
+public enum WeaponRank
+{
+    One = 1,
+    Two = 2,
+    Three = 3,
 }
 
 /// <summary>
@@ -18,6 +26,7 @@ public interface IWeapon
 {
     // 메타 정보
     WeaponCategory Category { get; } // 무기 카테고리
+    WeaponRank Rank { get; } // 무기 등급(1~3)
 
 	// 기본 스탯
 	string WeaponName { get; } // 무기 이름

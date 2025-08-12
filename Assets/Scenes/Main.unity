@@ -910,8 +910,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f53923546b2324bbb80aa5772743aedf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slot1StartWeapon: 1
-  slot2StartWeapon: 7
+  slot1StartWeapon: 0
+  slot2StartWeapon: 9
   muzzle: {fileID: 1099602592}
   owner: {fileID: 1099602592}
   hitMask:

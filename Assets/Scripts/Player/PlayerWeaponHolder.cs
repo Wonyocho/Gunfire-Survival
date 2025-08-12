@@ -4,17 +4,8 @@ using UnityEngine;
 public class PlayerWeaponHolder : MonoBehaviour
 {
     [Header("Equip Options")]
-    [SerializeField] bool equipM1911OnStart = true;
 
     public IWeapon Current { get; private set; }
-
-    void Awake()
-    {
-        if (equipM1911OnStart && Current == null)
-        {
-            Equip(new M1911());
-        }
-    }
 
     public void Equip(IWeapon newWeapon)
     {
