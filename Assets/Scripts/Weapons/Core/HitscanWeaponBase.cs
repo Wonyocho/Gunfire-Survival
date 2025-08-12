@@ -8,6 +8,7 @@ public abstract class HitscanWeaponBase : IWeapon
 {
     // ---- 무기 스탯(서브클래스에서 지정) ----
     public abstract WeaponCategory Category { get; }
+    public virtual WeaponRank Rank => WeaponRank.One; // 기본 등급(필요 시 서브클래스에서 재정의)
     public abstract string WeaponName { get; }
     public abstract float Damage { get; }
     public abstract float FireRate { get; }
@@ -31,6 +32,9 @@ public abstract class HitscanWeaponBase : IWeapon
     public System.Action<IWeapon> OnAmmoChanged { get; set; }
     public System.Action<IWeapon> OnReloadStarted { get; set; }
     public System.Action<IWeapon> OnReloadCompleted { get; set; }
+    
+    // VFX용 실제 발사 방향 이벤트 (origin, actualDirection, weapon)
+    public System.Action<Vector2, Vector2, IWeapon> OnActualShot { get; set; }
 
     // ---- 상태 프로퍼티 ----
     public int CurrentAmmo => currentAmmo;
@@ -61,6 +65,9 @@ public abstract class HitscanWeaponBase : IWeapon
         {
             Vector2 shotDir = (i == 0) ? dir : ApplySpread(direction.normalized);
             totalHits += FireSingleRay(origin, shotDir, targetMask);
+            
+            // 실제 발사 방향으로 VFX 이벤트 발송
+            OnActualShot?.Invoke(origin, shotDir, this);
         }
 
         // 탄약/쿨다운 갱신
