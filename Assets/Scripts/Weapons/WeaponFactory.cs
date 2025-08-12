@@ -10,6 +10,8 @@ public static class WeaponFactory
             case StartWeaponType.R700:  return new R700();
             case StartWeaponType.M249:  return new M249();
             case StartWeaponType.M1014: return new M1014();
+            case StartWeaponType.M110SASS: return new M110SASS();
+            case StartWeaponType.M82A1: return new M82A1();
             default: return new M1911();
         }
     }

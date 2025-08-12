@@ -6,9 +6,9 @@ public class M4A1 : HitscanWeaponBase
     public override WeaponCategory Category => WeaponCategory.AR;
     public override string WeaponName => "M4A1";
     public override float Damage => 25f;
-    public override float FireRate => 3.3333333f; // 0.3초/발
+    public override float FireRate => 10f; // 0.1초/발
     public override int MagazineSize => 30;
-    public override float ReloadTime => 2f;
+    public override float ReloadTime => 2f; // 
     public override int PenetrationCount => 1;
     public override float SpreadAngle => 1f;
 }
